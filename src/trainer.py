@@ -1,13 +1,16 @@
+from dataload import *
+import torch.cuda as cuda
+
 def train_model(model, criterion, optimizer, train_loader, valid_loader, epochs=10):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if cuda.is_available() else 'cpu')
     model.to(device)
     
     for epoch in range(epochs):
         model.train()
         train_loss = 0
         for batch in tqdm(train_loader, desc=f"Training Epoch {epoch+1}"):
-            texts, labels = batch['text'], batch['label']
-            texts, labels = texts.to(device), labels.to(device)
+            texts = batch['text'].to(device)
+            labels = torch.tensor(batch['label'], device=device)
             optimizer.zero_grad()
             outputs = model(texts)
             loss = criterion(outputs, labels)
@@ -24,8 +27,8 @@ def validate_model(model, criterion, valid_loader, device):
     all_preds, all_labels = [], []
     with torch.no_grad():
         for batch in tqdm(valid_loader, desc="Validating"):
-            texts, labels = batch['text'], batch['label']
-            texts, labels = texts.to(device), labels.to(device)
+            texts = batch['text'].to(device)
+            labels = torch.tensor(batch['label'], device=device)
             outputs = model(texts)
             loss = criterion(outputs, labels)
             valid_loss += loss.item()
@@ -35,5 +38,3 @@ def validate_model(model, criterion, valid_loader, device):
     
     f1 = f1_score(all_labels, all_preds, average='macro')
     return valid_loss / len(valid_loader), f1
-
-
