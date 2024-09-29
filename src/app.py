@@ -5,7 +5,7 @@ import pytesseract
 import re
 
 # Configure the generative AI model
-genai.configure(api_key="AIzaSyDGnI5mLA7HEz_Zl5gr38uYEQ81GlsGzkw")
+genai.configure(api_key="")
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Helper function to clean and structure the extracted text
